@@ -19,6 +19,9 @@ end
 target 'App' do
   capacitor_pods
   # Add your Pods here
+  # Push: il backend usa FCM, quindi il token da registrare è quello FCM.
+  # AppDelegate passa il device token APNs a Firebase Messaging.
+  pod 'FirebaseMessaging'
 end
 
 post_install do |installer|
