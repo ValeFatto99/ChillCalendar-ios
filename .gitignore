@@ -1,0 +1,18 @@
+node_modules/
+
+# Config Firebase per-macchina (vedi README: va copiato in ios/App/App/).
+ios/App/App/GoogleService-Info.plist
+
+# Segreti di firma: mai committare certificati, chiavi APNs e profili.
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+
+# Artefatti CocoaPods / Xcode.
+ios/App/Pods/
+ios/App/output/
+ios/App/App/public/
+ios/DerivedData/
+ios/build/
+.DS_Store
