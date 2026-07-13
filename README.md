@@ -70,9 +70,32 @@ npm run assets      # = capacitor-assets generate --ios
 ## Build
 - **In locale**: da Xcode (Product → Run su simulatore o iPhone).
 - **In CI**: la GitHub Action `.github/workflows/ios-build.yml` compila su
-  `macos-latest` **senza firma** (`CODE_SIGNING_ALLOWED=NO`) come check di
-  compilazione. La firma vera (certificati + provisioning profile, ad es.
-  con fastlane match) si aggiunge quando c'è l'account Apple Developer.
+  `macos-latest` **senza firma** (`CODE_SIGNING_ALLOWED=NO`) e carica come
+  artifact **`ChillCalendar-unsigned-ipa`** (una .ipa non firmata, scaricabile
+  dalla pagina della run in *Actions*). La firma vera (certificati +
+  provisioning profile, ad es. con fastlane match) si aggiunge quando c'è
+  l'account Apple Developer.
+
+## Installare su iPhone senza account Apple Developer a pagamento
+La .ipa della CI **non è firmata**: iOS non la installa così com'è, va
+firmata con un Apple ID (gratuito). Due strade:
+
+1. **Sideloading della .ipa della CI** (serve un PC/Mac, non serve Xcode):
+   scarica l'artifact `ChillCalendar-unsigned-ipa` dalla run su GitHub
+   Actions, scompattalo, poi con [Sideloadly](https://sideloadly.io/)
+   (Windows/macOS) o AltStore: colleghi l'iPhone, accedi col tuo Apple ID e
+   installi la .ipa. Sideloadly la rifirma automaticamente.
+2. **Da Xcode su Mac** (consigliata se hai un Mac): apri `App.xcworkspace`,
+   in *Signing & Capabilities* scegli il tuo *Personal Team* (Apple ID
+   gratuito), collega l'iPhone e premi Run.
+
+Limiti dell'Apple ID gratuito (valgono per entrambe le strade):
+- l'app **scade dopo 7 giorni** (poi va reinstallata);
+- le **push non funzionano** (la capability Push richiede l'account a
+  pagamento — con la firma gratuita l'entitlement viene rimosso). Il test
+  del **login Google col deep link funziona** comunque;
+- al primo avvio: Impostazioni → Generali → Gestione VPN e dispositivo →
+  autorizza lo sviluppatore.
 
 ## Test del login Google (su iPhone/simulatore)
 1. Tap su "Accedi con Google" → si apre Safari in-app con barra URL.

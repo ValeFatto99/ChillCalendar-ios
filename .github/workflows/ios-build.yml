@@ -1,11 +1,11 @@
-# Check di compilazione: verifica che il progetto iOS compili su macOS.
-# Build SENZA firma (CODE_SIGNING_ALLOWED=NO): per la .ipa firmata servono
-# l'account Apple Developer, certificati e provisioning profile (vedi README).
+# Compila su macOS e produce una .ipa NON firmata come artifact scaricabile
+# (installabile su iPhone via sideloading, vedi README). Per la .ipa firmata
+# servono l'account Apple Developer, certificati e provisioning profile.
 name: iOS build (unsigned)
 
 on:
   push:
-    branches: [main, "claude/**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -31,12 +31,29 @@ jobs:
         working-directory: ios/App
         run: pod install
 
-      - name: Build senza firma
+      - name: Archive senza firma
         working-directory: ios/App
         run: |
           xcodebuild -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
+            -archivePath output/App.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
-            build
+            archive
+
+      # La .ipa è solo Payload/App.app zippato. Non essendo firmata NON si
+      # installa direttamente: va firmata in sideloading (Sideloadly/AltStore)
+      # o ricostruita da Xcode con un team di sviluppo.
+      - name: Impacchetta la .ipa non firmata
+        working-directory: ios/App
+        run: |
+          mkdir -p output/Payload
+          cp -R output/App.xcarchive/Products/Applications/App.app output/Payload/
+          cd output && zip -qry ChillCalendar-unsigned.ipa Payload
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ChillCalendar-unsigned-ipa
+          path: ios/App/output/ChillCalendar-unsigned.ipa
+          retention-days: 30
